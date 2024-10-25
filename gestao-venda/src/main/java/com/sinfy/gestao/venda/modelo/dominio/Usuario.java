@@ -4,6 +4,7 @@
  */
 package com.sinfy.gestao.venda.modelo.dominio;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -22,17 +23,18 @@ public class Usuario {
     private LocalDateTime ultimoLogin;
 
     public Usuario() {
+        this.estado = true;
     }
 
-    public Usuario(Long id, String nome, String senha, String usuario, Perfil perfil, boolean estado, LocalDateTime dataHoraCriacao, LocalDateTime ultimoLogin) {
+    public Usuario(Long id, String nome, String senha, String usuario, Perfil perfil, LocalDateTime dataHoraCriacao, LocalDateTime ultimoLogin) {
         this.id = id;
         this.nome = nome;
         this.senha = senha;
         this.usuario = usuario;
         this.perfil = perfil;
-        this.estado = estado;
         this.dataHoraCriacao = dataHoraCriacao;
         this.ultimoLogin = ultimoLogin;
+        this.estado = true;
     }
 
     public Long getId() {
@@ -121,7 +123,12 @@ public class Usuario {
         return Objects.equals(this.id, other.id);
     }
     
+    public void reset() {
+        this.estado = true;
+    }
     
-    
+    public void mudarEstado() {
+        this.estado = !this.estado;
+    }
     
 }
