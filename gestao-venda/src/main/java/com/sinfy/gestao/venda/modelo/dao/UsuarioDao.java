@@ -6,9 +6,14 @@ package com.sinfy.gestao.venda.modelo.dao;
 
 import com.sinfy.gestao.venda.modelo.conexao.Conexao;
 import com.sinfy.gestao.venda.modelo.conexao.ConexaoMysql;
+import com.sinfy.gestao.venda.modelo.dominio.Perfil;
 import com.sinfy.gestao.venda.modelo.dominio.Usuario;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -28,6 +33,13 @@ public class UsuarioDao {
 
     private String adicionar(Usuario usuario){
         String sql = "INSERT INTO usuario(nome, usuario, senha, perfil, estado) VALUES (?, ?, ?, ?, ?)";
+        
+        Usuario usuarioTemp = buscarUsuarioPeloUsuario(usuario.getUsuario());
+        
+        if(usuarioTemp != null) {
+            return String.format("Error: usuário %s já existe no banco de dados", usuario.getUsuario());
+        }
+        
         try {
             PreparedStatement preparedStatement = conexao.obterConexao().prepareStatement(sql);
             
@@ -68,4 +80,68 @@ public class UsuarioDao {
         }
     }
     
+    
+    public List<Usuario> buscarTodosUsuarios() {
+        String sql = "SELECT * FROM usuario";
+        List<Usuario> usuarios = new ArrayList<>();
+        try {
+            ResultSet result = conexao.obterConexao().prepareStatement(sql).executeQuery();
+            
+            while(result.next()) {
+                usuarios.add(getUsuario(result));
+            }
+        } catch (SQLException e) {
+            System.out.println(String.format("Error: ", e.getMessage()));
+        }
+        
+        return usuarios;
+    }
+    
+    
+    private Usuario getUsuario(ResultSet result) throws SQLException {
+        Usuario usuario = new Usuario();
+        
+        usuario.setId(result.getLong("id"));
+        usuario.setNome(result.getString("nome"));
+        usuario.setUsuario(result.getString("usuario"));
+        usuario.setSenha(result.getString("senha"));
+        usuario.setPerfil(result.getObject("perfil", Perfil.class));
+        usuario.setEstado(result.getBoolean("estado"));
+        usuario.setDataHoraCriacao(result.getObject("data hora criacao", LocalDateTime.class));
+        usuario.setUltimoLogin(result.getObject("ultimo login", LocalDateTime.class));
+        
+        return usuario;
+    }
+    
+    public Usuario buscarUsuarioPeloId(Long id) {
+        String sql = String.format("SELECT * FROM usuario WHERE id = %d", id);
+
+        try {
+            ResultSet result = conexao.obterConexao().prepareStatement(sql).executeQuery();
+            
+            if(result.next()) {
+                return getUsuario(result);
+            }
+        } catch (SQLException e) {
+            System.out.println(String.format("Error: ", e.getMessage()));
+        }
+        
+        return null;
+    }
+    
+    public Usuario buscarUsuarioPeloUsuario(String usuario) {
+        String sql = String.format("SELECT * FROM usuario WHERE usuario = %s", usuario);
+
+        try {
+            ResultSet result = conexao.obterConexao().prepareStatement(sql).executeQuery();
+            
+            if(result.next()) {
+                return getUsuario(result);
+            }
+        } catch (SQLException e) {
+            System.out.println(String.format("Error: ", e.getMessage()));
+        }
+        
+        return null;
+    }
 }
