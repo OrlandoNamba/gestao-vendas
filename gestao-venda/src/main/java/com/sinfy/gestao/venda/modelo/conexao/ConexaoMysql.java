@@ -16,7 +16,7 @@ public class ConexaoMysql implements Conexao{
 
     private final String USUARIO = "root";
     private final String SENHA = "admin";
-    private final String URL = "jdbc:mysql://localhost/gestao_venda1?useTimezone=true&serverTimezone=America/Sao_Paulo";
+    private final String URL = "jdbc:mysql://localhost/gestao-vendas-db?useTimezone=true&serverTimezone=America/Sao_Paulo";
     private Connection conectar;
     
     @Override

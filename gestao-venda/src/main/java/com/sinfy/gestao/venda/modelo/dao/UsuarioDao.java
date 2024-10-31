@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
  *
@@ -31,10 +32,10 @@ public class UsuarioDao {
         return usuario.getId() == 0L ? adicionar(usuario) : editar(usuario);
     }
 
-    private String adicionar(Usuario usuario){
-        String sql = "INSERT INTO usuario(nome, usuario, senha, perfil, estado) VALUES (?, ?, ?, ?, ?)";
+    private String adicionar(Usuario usuario){ //Método adicionar
+        String sql = "INSERT INTO usuario(nome, usuario, senha, perfil, estado) VALUES (?, ?, ?, ?, ?)"; //Estrutura do SQL
         
-        Usuario usuarioTemp = buscarUsuarioPeloUsuario(usuario.getUsuario());
+        Usuario usuarioTemp = buscarUsuarioPeloUsuario(usuario.getUsuario()); //Verificação de usuário existente
         
         if(usuarioTemp != null) {
             return String.format("Error: usuário %s já existe no banco de dados", usuario.getUsuario());
@@ -43,7 +44,7 @@ public class UsuarioDao {
         try {
             PreparedStatement preparedStatement = conexao.obterConexao().prepareStatement(sql);
             
-            preencherValoresPreparedStatement(preparedStatement, usuario);
+            preencherValoresPreparedStatement(preparedStatement, usuario); //Preenche os valores com os dados fornecidos pelo usuário
             
             int resultado = preparedStatement.executeUpdate();
             
@@ -69,10 +70,15 @@ public class UsuarioDao {
     }
 
     private void preencherValoresPreparedStatement(PreparedStatement preparedStatement, Usuario usuario) throws SQLException {
+    
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        
+        String senhaCrypt = passwordEncoder.encode(usuario.getSenha());
+        
         preparedStatement.setString(1, usuario.getNome());
         preparedStatement.setString(2, usuario.getUsuario());
         preparedStatement.setString(3, usuario.getSenha());
-        preparedStatement.setString(4, usuario.getPerfil().name());
+        preparedStatement.setString(4,senhaCrypt);
         preparedStatement.setBoolean(5, usuario.isEstado());
         
         if(usuario.getId() != 0L) {
