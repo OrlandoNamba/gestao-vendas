@@ -55,7 +55,7 @@ public class UsuarioDao {
     }
 
     private String editar(Usuario usuario) {
-        String sql = "UPDATE categoria SET nome = ?, usuario = ?, senha = ?, perfil = ?, estado WHERE id = ?";
+        String sql = "UPDATE usuario SET nome = ?, usuario = ?, senha = ?, perfil = ?, estado WHERE id = ?";
         try {
             PreparedStatement preparedStatement = conexao.obterConexao().prepareStatement(sql);
             
@@ -77,8 +77,8 @@ public class UsuarioDao {
         
         preparedStatement.setString(1, usuario.getNome());
         preparedStatement.setString(2, usuario.getUsuario());
-        preparedStatement.setString(3, usuario.getSenha());
-        preparedStatement.setString(4,senhaCrypt);
+        preparedStatement.setString(3, senhaCrypt);
+        preparedStatement.setString(4,usuario.getPerfil().name());
         preparedStatement.setBoolean(5, usuario.isEstado());
         
         if(usuario.getId() != 0L) {
